@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaflet Test Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map("map").setView([20, 0], 2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+    fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson")
+
+      .then(res => res.json())
+      .then(data => {
+        data.features = data.features.filter(f => f.properties.ADMIN !== "Antarctica");
+
+        L.geoJSON(data, {
+          style: () => ({
+            fillColor: "#cccccc",
+            color: "black",
+            weight: 1,
+            fillOpacity: 0.7
+          }),
+          onEachFeature: function (feature, layer) {
+            const country = feature.properties.ADMIN;
+
+            if (country === "India") {
+              console.log("Binding click for India");
+
+              layer.bindTooltip("Click to go to Google");
+
+              layer.on("click", function () {
+                console.log("Clicked on India");
+                window.open("https://www.google.com", "_blank");
+              });
+            }
+          }
+        }).addTo(map);
+      });
+  </script>
+</body>
+</html>
